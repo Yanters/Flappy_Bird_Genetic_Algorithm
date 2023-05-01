@@ -1,0 +1,1 @@
+This project is a Python program that uses Pygame to make a game where an AI learns to play Flappy Bird. The AI uses a genetic algorithm to evolve its behavior and get better at the game.
