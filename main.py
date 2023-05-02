@@ -3,12 +3,10 @@ import config
 import components
 
 # pygame setup
-pygame.init()
 clock = pygame.time.Clock()
 running = True
 dt = 0
 pipe_spawn_timer = -config.pipe_spawn_delay
-
 
 # create objects
 ground = components.Ground(config.ground_speed)
@@ -23,6 +21,11 @@ def events_handler():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    config.window.blit(img, (x, y))
 
 
 while running:
@@ -44,16 +47,20 @@ while running:
         if pipe.x < 0 - pipe.top_pipe_img.get_width()/2:
             pipes.remove(pipe)
 
-    # draw pipes
+    # draw the pipes
     for pipe in pipes:
-        pipe.update(config.win_width)
         pipe.draw(config.window)
+        pipe.update()
 
     # draw the ground
     ground.draw(config.window, config.win_height, config.win_width)
 
     # draw the bird
-    bird.update(config.window)
+    bird.update(config.window, pipes)
+
+    # draw the score
+    draw_text(str(bird.score), config.font,
+              config.font_color, config.win_width/2 - 10, 10)
 
     # bird movement
     keys = pygame.key.get_pressed()

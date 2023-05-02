@@ -37,6 +37,7 @@ class Pipe:
         self.x = x
         self.y = random.randint(min_y, max_y)
         self.pipe_speed = pipe_speed
+        self.pipe_passed = False
         self.pipe_gap = random.randint(pipe_gap_min, pipe_gap_max)
         self.top_pipe_rect = self.top_pipe_img.get_rect()
         self.bottom_pipe_rect = self.bottom_pipe_img.get_rect()
@@ -47,12 +48,10 @@ class Pipe:
         window.blit(self.top_pipe_img, self.top_pipe_rect)
         window.blit(self.bottom_pipe_img, self.bottom_pipe_rect)
 
-    def update(self, win_width):
+    def update(self):
         self.x -= self.pipe_speed
         self.top_pipe_rect.bottomright = (self.x, self.y - self.pipe_gap / 2)
         self.bottom_pipe_rect.topright = (self.x, self.y + self.pipe_gap / 2)
-        if self.x < -self.top_pipe_img.get_width():
-            self.x = win_width + self.top_pipe_img.get_width()
 
 
 class Bird:
@@ -62,6 +61,7 @@ class Bird:
     def __init__(self, x, y, tick_max_count=7, ground_y=800, jump_tick_delay=5, jump_rotation=30, jump_vel=-10, fall_vel=0.5, fall_rotation=2, fall_max_rotation=-60):
         self.x = x
         self.y = y
+        self.score = 0
         self.tick_count = 0
         self.tick_max_count = tick_max_count
         self.bird_index = 0
@@ -84,11 +84,12 @@ class Bird:
         window.blit(self.bird_img, self.bird_rect)
 
     def update_image(self):
-        self.tick_count += 1
-        if self.tick_count % self.tick_max_count == 0:
-            self.bird_index += 1
-            if self.bird_index > 2:
-                self.bird_index = 0
+        if self.alive:
+            self.tick_count += 1
+            if self.tick_count % self.tick_max_count == 0:
+                self.bird_index += 1
+                if self.bird_index > 2:
+                    self.bird_index = 0
 
         self.bird_img = pygame.transform.rotate(
             self.bird_images[self.bird_index], self.rotation)
@@ -110,11 +111,26 @@ class Bird:
             self.vel = 0
         self.bird_rect.center = (self.x, self.y)
 
-    def update(self, window):
+    def check_collision(self, pipes):
+        for pipe in pipes:
+            if self.bird_rect.colliderect(pipe.top_pipe_rect) or self.bird_rect.colliderect(pipe.bottom_pipe_rect):
+                self.alive = False
+
+    def check_passed_pipes(self, pipes):
+        for pipe in pipes:
+            if self.bird_rect.left > pipe.top_pipe_rect.left and self.bird_rect.right < pipe.top_pipe_rect.right and not pipe.pipe_passed:
+                pipe.pipe_passed = True
+            if pipe.pipe_passed and self.bird_rect.left > pipe.top_pipe_rect.right:
+                self.score += 1
+                pipe.pipe_passed = False
+
+    def update(self, window, pipes):
         if self.alive:
-            self.update_image()
-            self.update_position()
+            self.check_collision(pipes)
+            self.check_passed_pipes(pipes)
             self.jump_tick_count += 1
+        self.update_position()
+        self.update_image()
         self.draw(window)
 
     def jump(self):
