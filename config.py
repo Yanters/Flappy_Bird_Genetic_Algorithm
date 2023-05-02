@@ -6,7 +6,8 @@ pygame.init()
 fps = 60
 
 font = pygame.font.SysFont("comicsans", 50)
-font_color = (255, 255, 255)
+font_color_white = (255, 255, 255)
+font_color_blue = (0, 0, 255)
 
 # ground variables
 ground_scroll = 0
@@ -29,14 +30,14 @@ bird_y = win_height / 3
 bird_tick_max_count = 10
 bird_jump_tick_delay = 0
 bird_jump_rotation = 55
-bird_jump_vel = -10
+bird_jump_vel = -8.5
 bird_fall_vel = 0.5
 bird_fall_rotation = 2
 bird_fall_max_rotation = -45
 
 # pipe variables
-pipe_speed = 6
-pipe_spawn_delay = 1050  # milliseconds
+pipe_speed = 4
+pipe_spawn_delay = 1500  # milliseconds
 pipe_height = 560
 pipe_width = 78
 pipe_gap_min = 150

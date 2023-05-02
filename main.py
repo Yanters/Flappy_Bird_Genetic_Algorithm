@@ -28,6 +28,14 @@ def draw_text(text, font, text_col, x, y):
     config.window.blit(img, (x, y))
 
 
+def reset():
+    global bird, pipes, pipe_spawn_timer
+    bird = components.Bird(config.bird_x, config.bird_y,
+                           config.bird_tick_max_count, config.win_height - ground.ground_img.get_height(), config.bird_jump_tick_delay, config.bird_jump_rotation, config.bird_jump_vel, config.bird_fall_vel, config.bird_fall_rotation, config.bird_fall_max_rotation)
+    pipes = []
+    pipe_spawn_timer = -config.pipe_spawn_delay
+
+
 while running:
     # handle events
     events_handler()
@@ -60,12 +68,21 @@ while running:
 
     # draw the score
     draw_text(str(bird.score), config.font,
-              config.font_color, config.win_width/2 - 10, 10)
+              config.font_color_white, config.win_width/2 - 10, 10)
 
     # bird movement
     keys = pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
         bird.jump()
+
+    # check if bird is alive
+    if not bird.alive:
+        draw_text("Press SPACE to restart", config.font,
+                  config.font_color_blue, config.win_width/2 - 250, config.win_height/2 - 50)
+        # wait for space to be pressed
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            reset()
 
     # flip() the display to put your work on screen
     pygame.display.flip()
