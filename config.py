@@ -1,25 +1,40 @@
 import pygame
 
-# pygame setup
-win_width = 864
-win_height = 768 + 168
-window = pygame.display.set_mode((win_width, win_height))
-pygame.display.set_caption("Flappy Bird Genetic Algorithm")
-
-# ground setup
-ground_scroll = 0
-ground_speed = 3
-
 # game variables
 fps = 60
+
+# ground variables
+ground_scroll = 0
+ground_speed = 3
+ground_height = 168
+
+# background variables
+bg_height = 768
+bg_width = 864
+
+# pygame setup
+win_width = bg_width
+win_height = bg_height + ground_height
+window = pygame.display.set_mode((win_width, win_height))
+pygame.display.set_caption("Flappy Bird Genetic Algorithm")
 
 # bird variables
 bird_x = win_width*2/9
 bird_y = win_height / 2
 bird_tick_max_count = 10
-bird_jump_tick_delay = 10
+bird_jump_tick_delay = 0
 bird_jump_rotation = 55
-bird_jump_vel = -12
+bird_jump_vel = -10
 bird_fall_vel = 0.5
 bird_fall_rotation = 2
 bird_fall_max_rotation = -45
+
+# pipe variables
+pipe_speed = 6
+pipe_spawn_delay = 1050  # milliseconds
+pipe_height = 560
+pipe_width = 78
+pipe_gap_min = 100
+pipe_gap_max = 300
+pipe_min_y = win_height - ground_height - pipe_height - pipe_gap_min/2
+pipe_max_y = pipe_height + pipe_gap_min/2

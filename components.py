@@ -1,8 +1,9 @@
+import random
 import pygame
 
 
 class BackGround:
-    bg_img = pygame.image.load("images/bg.png").convert()
+    bg_img = pygame.image.load("images/bg.png").convert_alpha()
 
     # empty constructor
     def __init__(self):
@@ -13,7 +14,7 @@ class BackGround:
 
 
 class Ground:
-    ground_img = pygame.image.load("images/ground.png").convert()
+    ground_img = pygame.image.load("images/ground.png").convert_alpha()
 
     def __init__(self, ground_speed):
         self.ground_speed = ground_speed
@@ -25,6 +26,33 @@ class Ground:
         self.ground_scroll -= self.ground_speed
         if abs(self.ground_scroll) > self.ground_img.get_width() - win_width:
             self.ground_scroll = 0
+
+
+class Pipe:
+    bottom_pipe_img = pygame.image.load("images/pipe.png").convert_alpha()
+    top_pipe_img = pygame.transform.flip(
+        bottom_pipe_img, False, True).convert_alpha()
+
+    def __init__(self, x, min_y, max_y, pipe_speed, pipe_gap_min, pipe_gap_max):
+        self.x = x
+        self.y = random.randint(min_y, max_y)
+        self.pipe_speed = pipe_speed
+        self.pipe_gap = random.randint(pipe_gap_min, pipe_gap_max)
+        self.top_pipe_rect = self.top_pipe_img.get_rect()
+        self.bottom_pipe_rect = self.bottom_pipe_img.get_rect()
+        self.top_pipe_rect.bottomright = (self.x, self.y + self.pipe_gap / 2)
+        self.bottom_pipe_rect.topright = (self.x, self.y - self.pipe_gap / 2)
+
+    def draw(self, window):
+        window.blit(self.top_pipe_img, self.top_pipe_rect)
+        window.blit(self.bottom_pipe_img, self.bottom_pipe_rect)
+
+    def update(self, win_width):
+        self.x -= self.pipe_speed
+        self.top_pipe_rect.bottomright = (self.x, self.y - self.pipe_gap / 2)
+        self.bottom_pipe_rect.topright = (self.x, self.y + self.pipe_gap / 2)
+        if self.x < -self.top_pipe_img.get_width():
+            self.x = win_width + self.top_pipe_img.get_width()
 
 
 class Bird:
@@ -50,6 +78,7 @@ class Bird:
         self.fall_vel = fall_vel
         self.fall_rotation = fall_rotation
         self.fall_max_rotation = fall_max_rotation
+        self.alive = True
 
     def draw(self, window):
         window.blit(self.bird_img, self.bird_rect)
@@ -74,16 +103,22 @@ class Bird:
         if self.y > self.ground_y:
             self.y = self.ground_y
             self.vel = 0
+            self.alive = False
+
+        if self.y < 0:
+            self.y = 0
+            self.vel = 0
         self.bird_rect.center = (self.x, self.y)
 
     def update(self, window):
-        self.update_image()
-        self.update_position()
+        if self.alive:
+            self.update_image()
+            self.update_position()
+            self.jump_tick_count += 1
         self.draw(window)
-        self.jump_tick_count += 1
 
     def jump(self):
-        if self.jump_tick_count > self.jump_tick_delay:
+        if self.jump_tick_count > self.jump_tick_delay and self.alive:
             self.vel = self.jump_vel
             self.rotation = self.jump_rotation
             self.jump_tick_count = 0
