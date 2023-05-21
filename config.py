@@ -1,13 +1,18 @@
 import pygame
+import pipes_collection
 
 pygame.init()
 
 # game variables
 fps = 60
+pipes = pipes_collection.Pipes()
+population_size = 100
 
 font = pygame.font.SysFont("comicsans", 50)
 font_color_white = (255, 255, 255)
 font_color_blue = (0, 0, 255)
+font_color_red = (255, 0, 0)
+font_color_orange = (255, 165, 0)
 
 # ground variables
 ground_scroll = 0

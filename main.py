@@ -1,6 +1,8 @@
 import pygame
 import config
-import components
+import population
+import components.background as background
+import components.ground as ground
 
 # pygame setup
 clock = pygame.time.Clock()
@@ -9,12 +11,9 @@ dt = 0
 pipe_spawn_timer = -config.pipe_spawn_delay
 
 # create objects
-ground = components.Ground(config.ground_speed)
-bg = components.BackGround()
-bird = components.Bird(config.bird_x, config.bird_y,
-                       config.bird_tick_max_count, config.win_height - ground.ground_img.get_height(), config.bird_jump_tick_delay, config.bird_jump_rotation, config.bird_jump_vel, config.bird_fall_vel, config.bird_fall_rotation, config.bird_fall_max_rotation)
-pipes = []
-
+ground = ground.Ground(config.ground_speed)
+bg = background.BackGround()
+birdPopulation = population.Population(config.population_size)
 
 def events_handler():
     global running
@@ -29,10 +28,9 @@ def draw_text(text, font, text_col, x, y):
 
 
 def reset():
-    global bird, pipes, pipe_spawn_timer
-    bird = components.Bird(config.bird_x, config.bird_y,
-                           config.bird_tick_max_count, config.win_height - ground.ground_img.get_height(), config.bird_jump_tick_delay, config.bird_jump_rotation, config.bird_jump_vel, config.bird_fall_vel, config.bird_fall_rotation, config.bird_fall_max_rotation)
-    pipes = []
+    global birdPopulation, pipe_spawn_timer
+    birdPopulation = population.Population(config.population_size)
+    config.pipes.clear_pipes()
     pipe_spawn_timer = -config.pipe_spawn_delay
 
 
@@ -47,42 +45,39 @@ while running:
     time = pygame.time.get_ticks()
     if time - pipe_spawn_timer > config.pipe_spawn_delay:
         pipe_spawn_timer = time
-        pipes.append(components.Pipe(config.win_width + config.pipe_width, config.pipe_min_y, config.pipe_max_y,
-                                     config.pipe_speed, config.pipe_gap_min, config.pipe_gap_max))
+        config.pipes.add_pipe(config.win_width, config.pipe_width, config.pipe_min_y, config.pipe_max_y,
+                              config.pipe_speed, config.pipe_gap_min, config.pipe_gap_max)
 
     # remove pipes that are out of screen
-    for pipe in pipes:
-        if pipe.x < 0 - pipe.top_pipe_img.get_width()/2:
-            pipes.remove(pipe)
+    config.pipes.remove_pipes_passed()
 
     # draw the pipes
-    for pipe in pipes:
-        pipe.draw(config.window)
-        pipe.update()
+    config.pipes.draw(config.window)
 
     # draw the ground
     ground.draw(config.window, config.win_height, config.win_width)
 
-    # draw the bird
-    bird.update(config.window, pipes)
+    # draw the population
+    birdPopulation.update(config.window, config.pipes)
 
     # draw the score
-    draw_text(str(bird.score), config.font,
+    draw_text(str(birdPopulation.get_best_score()), config.font,
               config.font_color_white, config.win_width/2 - 10, 10)
 
     # bird movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_SPACE]:
-        bird.jump()
+    # keys = pygame.key.get_pressed()
+    # if keys[pygame.K_SPACE]:
+    birdPopulation.random_jump()
 
-    # check if bird is alive
-    if not bird.alive:
+    # check if population is dead
+    if birdPopulation.is_extinct():
         draw_text("Press SPACE to restart", config.font,
                   config.font_color_blue, config.win_width/2 - 250, config.win_height/2 - 50)
         # wait for space to be pressed
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
             reset()
+        
 
     # flip() the display to put your work on screen
     pygame.display.flip()
