@@ -6,7 +6,7 @@ pygame.init()
 # game variables
 fps = 60
 pipes = pipes_collection.Pipes()
-population_size = 100
+population_size = 20
 
 font = pygame.font.SysFont("comicsans", 50)
 font_color_white = (255, 255, 255)

@@ -1,6 +1,7 @@
 import pygame
 import config
 import random
+import brain
 
 class Bird:
     bird_images = [pygame.image.load("./images/bird1.png").convert_alpha(), pygame.image.load(
@@ -29,7 +30,11 @@ class Bird:
         self.alive = True
 
         #AI
-        self.vision = [0.5, 1, 0.5]
+        self.vision = [0,0,0]
+        self.brain = brain.Brain(3)
+
+        # generate net 
+        self.brain.generate_net()
 
 
 
@@ -71,8 +76,6 @@ class Bird:
 
     def check_passed_pipes(self, pipes):
         for pipe in pipes.get_pipes():
-            # if self.bird_hitbox.left > pipe.top_pipe_rect.left and self.bird_hitbox.right < pipe.top_pipe_rect.right and not pipe.pipe_passed:
-            #     pipe.pipe_passed = True
             if self.bird_hitbox.left > pipe.top_pipe_rect.right and not pipe.pipe_passed:
                 self.score += 1
                 pipe.pipe_passed = True
@@ -82,10 +85,12 @@ class Bird:
             self.check_collision(pipes)
             self.check_passed_pipes(pipes)
             self.jump_tick_count += 1
+            self.look()
+            self.think()
         self.update_position()
         self.update_image()
         self.draw(window)
-        self.look()
+        
 
     def jump(self):
         if self.jump_tick_count > self.jump_tick_delay and self.alive:
@@ -104,24 +109,40 @@ class Bird:
         for pipe in config.pipes.get_pipes():
             if not pipe.pipe_passed:
                 return pipe
+        print("No pipes left")
         return config.pipes[-1]
                 
     def look(self):
-        if config.pipes:
+        if config.pipes and self.alive:
 
             # Line to top pipe
-            self.vision[0] = max(0, self.bird_hitbox.center[1] - self.closest_pipe().top_pipe_rect.bottomleft[1])
+            self.vision[0] = max(0, self.bird_hitbox.center[1] - self.closest_pipe().top_pipe_rect.bottomleft[1]) / config.win_height
             pygame.draw.line(config.window, config.font_color_blue, self.bird_hitbox.center,
                                 (self.bird_hitbox.center[0], self.closest_pipe().top_pipe_rect.bottomleft[1]))
 
             # Line to mid pipe
-            self.vision[1] = max(0, self.closest_pipe().top_pipe_rect.bottomleft[1] - self.bird_hitbox.center[1])
+            self.vision[1] = max(0, self.closest_pipe().top_pipe_rect.bottomleft[0] - self.bird_hitbox.center[0]) / config.win_width
             pygame.draw.line(config.window, config.font_color_orange, self.bird_hitbox.center,
                                 (self.closest_pipe().x , self.bird_hitbox.center[1]))
 
             # Line to bottom pipe
-            self.vision[2] = max(0, self.closest_pipe().bottom_pipe_rect.topleft[1] - self.bird_hitbox.center[1])
+            self.vision[2] = max(0, self.closest_pipe().bottom_pipe_rect.topleft[1] - self.bird_hitbox.center[1]) / config.win_height
             pygame.draw.line(config.window, config.font_color_red, self.bird_hitbox.center,
                                 (self.bird_hitbox.center[0],  self.closest_pipe().bottom_pipe_rect.topleft[1]))
             
+            # print(self.vision)
+            
+         
+            
+    def think(self):
+        output = self.brain.feed_forward(self.vision)
+        print(output)
+        if output > 0.7:
+            self.jump()
+
+    def clone(self):
+        clone = Bird(config.bird_x, config.bird_y, self.tick_max_count, self.ground_y, self.jump_tick_delay, self.jump_rotation, self.jump_vel, self.fall_vel, self.fall_rotation, self.fall_max_rotation)
+        clone.brain = self.brain.clone()
+        clone.brain.generate_net()
+        return clone
             

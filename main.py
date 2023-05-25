@@ -29,7 +29,7 @@ def draw_text(text, font, text_col, x, y):
 
 def reset():
     global birdPopulation, pipe_spawn_timer
-    birdPopulation = population.Population(config.population_size)
+    birdPopulation.create_new_generation()
     config.pipes.clear_pipes()
     pipe_spawn_timer = -config.pipe_spawn_delay
 
@@ -67,16 +67,17 @@ while running:
     # bird movement
     # keys = pygame.key.get_pressed()
     # if keys[pygame.K_SPACE]:
-    birdPopulation.random_jump()
+    # birdPopulation.random_jump()
 
     # check if population is dead
     if birdPopulation.is_extinct():
-        draw_text("Press SPACE to restart", config.font,
-                  config.font_color_blue, config.win_width/2 - 250, config.win_height/2 - 50)
-        # wait for space to be pressed
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            reset()
+        # draw_text("Press SPACE to restart", config.font,
+        #           config.font_color_blue, config.win_width/2 - 250, config.win_height/2 - 50)
+        # # wait for space to be pressed
+        # keys = pygame.key.get_pressed()
+        # if keys[pygame.K_SPACE]:
+        print("Population is extinct")
+        reset()
         
 
     # flip() the display to put your work on screen
