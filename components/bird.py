@@ -6,11 +6,13 @@ import brain
 class Bird:
     bird_images = [pygame.image.load("./images/bird1.png").convert_alpha(), pygame.image.load(
         "./images/bird2.png").convert_alpha(), pygame.image.load("./images/bird3.png").convert_alpha()]
+    
 
     def __init__(self, x, y, tick_max_count=7, ground_y=800, jump_tick_delay=5, jump_rotation=30, jump_vel=-10, fall_vel=0.5, fall_rotation=2, fall_max_rotation=-60):
         self.x = x
         self.y = y
         self.score = 0
+        self.fitness = 0
         self.tick_count = 0
         self.tick_max_count = tick_max_count
         self.bird_index = 0
@@ -87,6 +89,7 @@ class Bird:
             self.jump_tick_count += 1
             self.look()
             self.think()
+            self.fitness += 1
         self.update_position()
         self.update_image()
         self.draw(window)
@@ -117,26 +120,24 @@ class Bird:
 
             # Line to top pipe
             self.vision[0] = max(0, self.bird_hitbox.center[1] - self.closest_pipe().top_pipe_rect.bottomleft[1]) / config.win_height
-            pygame.draw.line(config.window, config.font_color_blue, self.bird_hitbox.center,
-                                (self.bird_hitbox.center[0], self.closest_pipe().top_pipe_rect.bottomleft[1]))
 
             # Line to mid pipe
             self.vision[1] = max(0, self.closest_pipe().top_pipe_rect.bottomleft[0] - self.bird_hitbox.center[0]) / config.win_width
-            pygame.draw.line(config.window, config.font_color_orange, self.bird_hitbox.center,
-                                (self.closest_pipe().x , self.bird_hitbox.center[1]))
 
             # Line to bottom pipe
             self.vision[2] = max(0, self.closest_pipe().bottom_pipe_rect.topleft[1] - self.bird_hitbox.center[1]) / config.win_height
-            pygame.draw.line(config.window, config.font_color_red, self.bird_hitbox.center,
-                                (self.bird_hitbox.center[0],  self.closest_pipe().bottom_pipe_rect.topleft[1]))
-            
-            # print(self.vision)
+            if config.show_lines:
+                pygame.draw.line(config.window, config.font_color_blue, self.bird_hitbox.center,
+                                    (self.bird_hitbox.center[0], self.closest_pipe().top_pipe_rect.bottomleft[1]))
+                pygame.draw.line(config.window, config.font_color_orange, self.bird_hitbox.center,
+                                    (self.closest_pipe().x , self.bird_hitbox.center[1]))
+                pygame.draw.line(config.window, config.font_color_red, self.bird_hitbox.center,
+                                    (self.bird_hitbox.center[0],  self.closest_pipe().bottom_pipe_rect.topleft[1]))
             
          
             
     def think(self):
         output = self.brain.feed_forward(self.vision)
-        print(output)
         if output > 0.7:
             self.jump()
 

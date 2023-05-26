@@ -3,8 +3,8 @@ import random
 class Species:
     def __init__(self, bird):
         self.birds = [bird]
-        self.threshold = 1.4
-        self.average_fitness = bird.score
+        self.threshold = 1.0
+        self.average_fitness = bird.fitness
         self.species_connections = bird.brain.get_connections()
 
     def compare_brain(self, brain):
@@ -23,12 +23,12 @@ class Species:
         self.birds.append(bird)
 
     def sort_players_by_fitness(self):
-        self.birds.sort(key=lambda x: x.score, reverse=True)
+        self.birds.sort(key=lambda x: x.fitness, reverse=True)
         
     def calculate_average_fitness(self):
         total_fitness = 0
         for bird in self.birds:
-            total_fitness += bird.score
+            total_fitness += bird.fitness
             
         self.average_fitness = total_fitness / len(self.birds)
 

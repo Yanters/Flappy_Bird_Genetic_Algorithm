@@ -8,6 +8,7 @@ class Population:
         self.size = size
         self.species = []
         self.generations = 0
+        self.best_score = 0
         for _ in range(size):
             self.birds.append(bird.Bird(config.bird_x, config.bird_y,
                        config.bird_tick_max_count, config.win_height - config.ground_height, config.bird_jump_tick_delay, config.bird_jump_rotation, config.bird_jump_vel, config.bird_fall_vel, config.bird_fall_rotation, config.bird_fall_max_rotation))
@@ -15,12 +16,18 @@ class Population:
     def update(self, window, pipes):
         for bird in self.birds:
             bird.update(window, pipes)
+        self.check_best_score()
 
     def is_extinct(self):
         for bird in self.birds:
             if bird.alive:
                 return False
         return True
+    
+    def check_best_score(self):
+        for bird in self.birds:
+            if bird.score > self.best_score:
+                self.best_score = bird.score
 
     def get_best_score(self):
         best_score = 0
@@ -99,3 +106,7 @@ class Population:
             if bird.alive:
                 alive += 1
         return alive
+    
+    def kill_all(self):
+        for bird in self.birds:
+            bird.alive = False

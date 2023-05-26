@@ -64,10 +64,10 @@ while running:
     draw_text(str(birdPopulation.get_best_score()), config.font,
               config.font_color_white, config.win_width/2 - 10, 10)
 
-    # bird movement
-    # keys = pygame.key.get_pressed()
-    # if keys[pygame.K_SPACE]:
-    # birdPopulation.random_jump()
+    # kill all birds
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_ESCAPE]:
+        birdPopulation.kill_all()
 
     # check if population is dead
     if birdPopulation.is_extinct():
@@ -78,6 +78,15 @@ while running:
         # if keys[pygame.K_SPACE]:
         print("Population is extinct")
         reset()
+
+    if config.show_details:
+        draw_text("Alive: " + str(birdPopulation.count_alive()), config.details_font,
+                  config.font_color_blue, config.win_width - 200, 10)
+        draw_text("Generation: " + str(birdPopulation.generations), config.details_font,
+                  config.font_color_blue, config.win_width - 200, 30)
+        draw_text("Best Score: " + str(birdPopulation.best_score), config.details_font,
+                  config.font_color_blue, config.win_width - 200, 50)
+        
         
 
     # flip() the display to put your work on screen

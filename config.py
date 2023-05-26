@@ -7,6 +7,11 @@ pygame.init()
 fps = 60
 pipes = pipes_collection.Pipes()
 population_size = 20
+show_lines = True
+show_details = True
+
+# details font
+details_font = pygame.font.SysFont("comicsans", 25)
 
 font = pygame.font.SysFont("comicsans", 50)
 font_color_white = (255, 255, 255)
