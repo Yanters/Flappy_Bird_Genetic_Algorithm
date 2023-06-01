@@ -94,4 +94,9 @@ class Brain:
         if (chance > 0.2):
             for i in range(0, len(self.connections)):
                 if random.uniform(0, 1) > 0.5:
-                    self.connections[i].weight = random.uniform(-1, 1)
+                    self.connections[i].weight = self.connections[i].weight + random.uniform(-0.5, 0.5)
+                    if self.connections[i].weight > 1:
+                        self.connections[i].weight = 1
+                    elif self.connections[i].weight < -1:
+                        self.connections[i].weight = -1
+            
